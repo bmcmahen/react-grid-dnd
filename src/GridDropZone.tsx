@@ -3,7 +3,7 @@ import { useSprings } from "react-spring";
 import { StateType } from "react-gesture-responder";
 import { useMeasure } from "./use-measure";
 import { GridContext } from "./GridContext";
-import { GridSettings, ChildRender } from "./grid-types";
+import { GridSettings, ChildRender, TraverseType } from "./grid-types";
 import { GridItem } from "./GridItem";
 import swap from "./swap";
 
@@ -182,8 +182,13 @@ export function GridDropZone<T>({
             targetIndex
           ) as number[];
 
+          const releaseTraverse =
+            traverse && traverse.sourceId === id ? traverse : undefined;
+
           setSprings(
-            getPositionsOnRelease(newOrder, grid, startIndex, traverseIndex)
+            getPositionsOnRelease(grid, releaseTraverse, () => {
+              console.log("SWITCH TARGETS");
+            })
           );
 
           order.current = newOrder;
@@ -297,25 +302,34 @@ function getPositionsOnDrag(
  */
 
 function getPositionsOnRelease(
-  order: number[],
   grid: GridSettings,
-  originalIndex: number,
-  traverseIndex?: number | false | null
+  traverse?: TraverseType,
+  onRest?: Function
 ) {
   return (i: number) => {
-    return {
-      ...getPositionForIndex(order.indexOf(i), grid, traverseIndex),
+    const isSourceIndex = traverse && traverse.sourceIndex === i;
+
+    const shared = {
       immediate: false,
       zIndex: "0",
       scale: 1,
-      opacity: 1,
-      onRest:
-        i === originalIndex
-          ? () => {
-              // update our array of items
-              console.log("ON REST");
-            }
-          : null
+      opacity: 1
+    };
+
+    if (isSourceIndex) {
+      return {
+        ...shared,
+        xy: [traverse!.rx, traverse!.ry],
+        onRest: onRest
+      };
+    }
+
+    const index = traverse && i >= traverse.sourceIndex ? i - 1 : i;
+
+    return {
+      ...getPositionForIndex(index, grid),
+      ...shared,
+      onRest: null
     };
   };
 }

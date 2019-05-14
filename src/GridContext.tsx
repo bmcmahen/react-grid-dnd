@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Bounds } from "./use-measure";
-import { GridSettings } from "./grid-types";
+import { GridSettings, TraverseType } from "./grid-types";
 import { getIndexFromCoordinates, getPositionForIndex } from "./GridDropZone";
 
 interface RegisterOptions extends Bounds {
@@ -8,20 +8,6 @@ interface RegisterOptions extends Bounds {
   count: number;
   /** grid info (boxes per row) */
   grid: GridSettings;
-}
-
-/**
- * A traverse captures information about dragging a grid item
- * from one list to another.
- */
-
-interface TraverseType {
-  sourceId: string;
-  targetId: string;
-  rx: number;
-  ry: number;
-  sourceIndex: number;
-  targetIndex: number;
 }
 
 interface GridContextType {
@@ -174,7 +160,12 @@ export function GridContextProvider({ children }: GridContextProviderProps) {
     const { x: fx, y: fy } = getFixedPosition(sourceId, x, y);
     const { x: rx, y: ry } = getRelativePosition(targetId, fx, fy);
     const { grid: targetGrid, count } = dropRefs.current.get(targetId)!;
-    const targetIndex = getIndexFromCoordinates(rx, ry, targetGrid, count);
+    const targetIndex = getIndexFromCoordinates(
+      rx + targetGrid.columnWidth / 2,
+      ry + targetGrid.rowHeight / 2,
+      targetGrid,
+      count
+    );
     const {
       xy: [px, py]
     } = getPositionForIndex(targetIndex, targetGrid);
