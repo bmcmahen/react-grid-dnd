@@ -1,0 +1,32 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "declaration": true,
+    "declarationDir": "esm",
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "jsx": "react",
+    "lib": ["es2015", "esnext.asynciterable", "dom"],
+    "module": "esnext",
+    "target": "es5",
+    "outDir": "esm",
+    "skipLibCheck": true,
+    "downlevelIteration": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": false,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": false
+  },
+  "includes": ["src"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "stories",
+    "tests",
+    "esm",
+    "src/**/__tests__"
+  ]
+}
