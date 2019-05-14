@@ -19,7 +19,8 @@
   },
   "peerDependencies": {
     "react": "^16.8.6",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "react-gesture-responder": "^2.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.0",

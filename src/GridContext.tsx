@@ -179,6 +179,16 @@ export function GridContextProvider({ children }: GridContextProviderProps) {
       xy: [px, py]
     } = getPositionForIndex(targetIndex, targetGrid);
     const { x: dx, y: dy } = diffDropzones(sourceId, targetId);
+
+    console.log("traverse", {
+      rx: px + dx,
+      ry: py + dy,
+      sourceId,
+      targetId,
+      sourceIndex,
+      targetIndex
+    });
+
     setTraverse({
       rx: px + dx,
       ry: py + dy,

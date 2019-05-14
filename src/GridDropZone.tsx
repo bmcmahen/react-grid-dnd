@@ -13,6 +13,7 @@ type GridDropZoneProps<T> = {
   rowHeight: number;
   id: string;
   children: ChildRender<T>;
+  style?: React.CSSProperties;
 };
 
 export function GridDropZone<T>({
@@ -88,6 +89,11 @@ export function GridDropZone<T>({
     order.current = items.map((_, i) => i);
   }, [order, items]);
 
+  React.useEffect(() => {
+    console.log("RUNNING");
+    setSprings(getFinalPositions(grid));
+  }, [bounds]);
+
   return (
     <div ref={ref} {...other}>
       {springs.map((styles, i) => {
@@ -106,8 +112,8 @@ export function GridDropZone<T>({
 
           const targetDropId = getActiveDropId(
             id,
-            startPosition.xy[0],
-            startPosition.xy[1]
+            startPosition.xy[0] + grid.columnWidth / 2,
+            startPosition.xy[1] + grid.rowHeight / 2
           );
 
           // are we dragging over another dropzone?
@@ -179,6 +185,8 @@ export function GridDropZone<T>({
           setSprings(
             getPositionsOnRelease(newOrder, grid, startIndex, traverseIndex)
           );
+
+          order.current = newOrder;
         }
 
         return (
@@ -227,14 +235,18 @@ export function getPositionForIndex(
  */
 
 function getFinalPositions(grid: GridSettings) {
-  return (i: number) => ({
-    ...getPositionForIndex(i, grid),
-    immediate: false,
-    reset: true,
-    zIndex: "0",
-    scale: 1,
-    opacity: 1
-  });
+  return (i: number) => {
+    return {
+      ...getPositionForIndex(i, grid),
+      immediate: false,
+      reset: true,
+      zIndex: "0",
+      scale: 1,
+      // our grid needs to measure the container width before we
+      // make our children visible
+      opacity: grid.columnWidth === 0 ? 0 : 1
+    };
+  };
 }
 
 /**
@@ -258,7 +270,7 @@ function getPositionsOnDrag(
   return (i: number) => {
     return i === originalIndex
       ? {
-          ...getDragPosition(currentIndex, grid, delta[0], delta[1]),
+          ...getDragPosition(currentIndex, grid, delta[0], delta[1], false),
           immediate: true,
           zIndex: "1",
           scale: 1.1,
@@ -321,13 +333,17 @@ function getDragPosition(
   index: number,
   grid: GridSettings,
   dx: number,
-  dy: number
+  dy: number,
+  center?: boolean
 ) {
   const {
     xy: [left, top]
   } = getPositionForIndex(index, grid);
   return {
-    xy: [left + dx + grid.columnWidth / 2, top + dy + grid.rowHeight / 2]
+    xy: [
+      left + dx + (center ? grid.columnWidth / 2 : 0),
+      top + dy + (center ? grid.rowHeight / 2 : 0)
+    ]
   };
 }
 
@@ -368,6 +384,6 @@ function getTargetIndex(
 ) {
   const {
     xy: [cx, cy]
-  } = getDragPosition(startIndex, grid, dx, dy);
+  } = getDragPosition(startIndex, grid, dx, dy, true);
   return getIndexFromCoordinates(cx, cy, grid, count);
 }
