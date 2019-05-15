@@ -60,74 +60,6 @@ interface GridContextProviderProps {
   ) => void;
 }
 
-// interface ChangeOptions {
-//   sourceId: string;
-//   sourceIndex: number;
-//   targetIndex: number;
-//   targetId?: string;
-// }
-
-// type Action<K, V = void> = V extends void ? { type: K } : { type: K } & V;
-
-// export type ActionType<T> =
-//   | Action<"UPDATE_LIST", { value: GridItemType<T> }>
-//   | Action<"CHANGE_LIST", { value: ChangeOptions }>
-//   | Action<"SET_TRAVERSE", { value: TraverseType | null }>
-//   | Action<"END_TRAVERSE">
-//   | Action<"SET_PLACEHOLDER", { value: any }>
-//   | Action<"UNSET_PLACEHOLDER", { value: any }>;
-
-// type GridItemType<T> = {
-//   [key: string]: Array<T>;
-// };
-
-// type StateType<T> = {
-//   traverse: TraverseType | null;
-//   grids: GridItemType<T>;
-// };
-
-// function reducer<T>(state: StateType<T>, action: ActionType<T>) {
-//   switch (action.type) {
-//     case "UPDATE_LIST":
-//       return {
-//         ...state,
-//         ...action.value
-//       };
-//     case "CHANGE_LIST": {
-//       // perform a traversal
-//       if (action.value.targetId) {
-//         const sourceList = state.grids[action.value.sourceId];
-//         const targetList = state.grids[action.value.targetId];
-//         const [source, target] = move(
-//           sourceList,
-//           targetList,
-//           action.value.sourceIndex,
-//           action.value.targetIndex
-//         );
-//         return {
-//           ...state,
-//           traversal: {
-//             ...state.traverse,
-//             execute: true
-//           },
-//           grids: {
-//             ...state.grids,
-//             [action.value.sourceId]: source,
-//             [action.value.targetId]: target
-//           }
-//         };
-//       }
-
-//       // perform regular change
-
-//       return {
-//         ...state,
-//         traverse: null
-//       };
-//     }
-//   }
-// }
-
 export function GridContextProvider({
   children,
   onChange
@@ -301,10 +233,37 @@ export function GridContextProvider({
     targetIndex: number,
     targetId?: string
   ) {
+    // this is a bit hacky, but seems to work for now. The idea
+    // is that we want our newly mounted traversed grid item
+    // to start its animation from the last target location.
+    // Execute informs our GridDropZone to remove the placeholder
+    // but to pass the initial location to the newly mounted
+    // grid item at the specified index.
+
+    // The problem here is that it's async, so potentially something
+    // could mount in its place in between setTraversal and onChange
+    // executing. Or maybe onChange won't do anything, in which case
+    // our state is kinda messed up.
+
+    // So it's sorta a controlled component, but not really, because
+    // if you don't do what we suggest, then it gets messed up.
+
+    // One solution is to bring the state in-component and force
+    // the state to be updated by us, since it's basically required
+    // anyway.
+
+    // We could possibly also use a unique identifier for the grid (besides
+    // the index). This could still result in weirdness, but would
+    // be more unlikely.
+
+    // Ultimately it's kinda messed because we are trying to do something
+    // imperative in a declarative interface.
+
     setTraverse({
       ...traverse!,
       execute: true
     });
+
     onChange(sourceId, sourceIndex, targetIndex, targetId);
   }
 
