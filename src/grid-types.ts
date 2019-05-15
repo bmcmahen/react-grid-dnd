@@ -16,6 +16,9 @@ export interface TraverseType {
   targetId: string;
   rx: number;
   ry: number;
+  tx: number;
+  ty: number;
   sourceIndex: number;
   targetIndex: number;
+  execute?: boolean;
 }

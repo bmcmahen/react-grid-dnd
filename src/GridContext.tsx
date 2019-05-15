@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Bounds } from "./use-measure";
 import { GridSettings, TraverseType } from "./grid-types";
-import { getIndexFromCoordinates, getPositionForIndex } from "./GridDropZone";
+import { getIndexFromCoordinates } from "./GridDropZone";
+import { getPositionForIndex } from "./helpers";
 
 interface RegisterOptions extends Bounds {
   /** The number of documents in each grid */
@@ -187,14 +188,27 @@ export function GridContextProvider({
     } = getPositionForIndex(targetIndex, targetGrid);
     const { x: dx, y: dy } = diffDropzones(sourceId, targetId);
 
-    setTraverse({
-      rx: px + dx,
-      ry: py + dy,
-      sourceId,
-      targetId,
-      sourceIndex,
-      targetIndex
-    });
+    // only update traverse if targetId or targetIndex have changed
+
+    if (
+      !traverse ||
+      !(
+        traverse &&
+        traverse.targetIndex !== targetIndex &&
+        traverse.targetId !== targetId
+      )
+    ) {
+      setTraverse({
+        rx: px + dx,
+        ry: py + dy,
+        tx: rx,
+        ty: ry,
+        sourceId,
+        targetId,
+        sourceIndex,
+        targetIndex
+      });
+    }
   }
 
   /**
@@ -211,8 +225,8 @@ export function GridContextProvider({
     targetIndex: number,
     targetId?: string
   ) {
-    setTraverse(null);
     onChange(sourceId, sourceIndex, targetIndex, targetId);
+    setTraverse(null);
   }
 
   return (

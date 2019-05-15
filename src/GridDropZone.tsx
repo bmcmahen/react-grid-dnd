@@ -6,6 +6,7 @@ import { GridContext } from "./GridContext";
 import { GridSettings, ChildRender, TraverseType } from "./grid-types";
 import { GridItem } from "./GridItem";
 import swap from "./swap";
+import { getPositionForIndex } from "./helpers";
 
 type GridDropZoneProps<T> = {
   items: T[];
@@ -15,6 +16,11 @@ type GridDropZoneProps<T> = {
   children: ChildRender<T>;
   style?: React.CSSProperties;
 };
+
+interface PlaceholderType {
+  startIndex: number;
+  targetIndex: number;
+}
 
 export function GridDropZone<T>({
   items,
@@ -33,24 +39,22 @@ export function GridDropZone<T>({
     remove,
     getActiveDropId
   } = React.useContext(GridContext);
+
   const ref = React.useRef<HTMLDivElement>(null);
   const { bounds } = useMeasure(ref);
-  const order = React.useRef(items.map((_, i) => i));
+  const [draggingIndex, setDraggingIndex] = React.useState<number | null>(null);
+  const [placeholder, setPlaceholder] = React.useState<PlaceholderType | null>(
+    null
+  );
+
   const traverseIndex =
     traverse && traverse.targetId === id ? traverse.targetIndex : null;
-
-  console.log("ITEMS", items);
 
   const grid: GridSettings = {
     columnWidth: bounds.width / boxesPerRow,
     boxesPerRow,
     rowHeight
   };
-
-  const [springs, setSprings] = useSprings(
-    items.length,
-    getFinalPositions(grid)
-  );
 
   /**
    * Register our dropzone with our grid context
@@ -77,154 +81,122 @@ export function GridDropZone<T>({
     return () => remove(id);
   }, [id]);
 
-  React.useEffect(() => {
-    if (typeof traverseIndex === "number") {
-      setSprings(getFinalPositions(grid, traverseIndex));
-    }
-  }, [grid, traverseIndex, order.current, setSprings]);
-
-  /**
-   * Maintain updated order whenever our list
-   * of items changes
-   */
-
-  React.useEffect(() => {
-    order.current = items.map((_, i) => i);
-    // setSprings(getFinalPositions(grid));
-  }, [order, items]);
-
-  /**
-   * If our bounds change, alter our positions
-   */
-
-  React.useEffect(() => {
-    setSprings(getFinalPositions(grid));
-  }, [bounds]);
+  const itemsIndexes = items.map((_, i) => i);
 
   return (
     <div ref={ref} {...other}>
-      {springs.map((styles, i) => {
+      {items.map((item: any, i) => {
+        const isTraverseTarget =
+          traverse && traverse.targetId === id && traverse.targetIndex === i;
+
+        const order = placeholder
+          ? swap(itemsIndexes, placeholder.startIndex, placeholder.targetIndex)
+          : itemsIndexes;
+
+        const pos = getPositionForIndex(order.indexOf(i), grid, traverseIndex);
+
         /**
-         * Handle dragging
+         * Handle a child being dragged
+         * @param state
+         * @param x
+         * @param y
          */
 
-        function onMove(state: StateType) {
-          const startIndex = i;
-          const startPosition = getDragPosition(
-            startIndex,
-            grid,
-            state.delta[0],
-            state.delta[1]
-          );
+        function onMove(state: StateType, x: number, y: number) {
+          if (draggingIndex !== i) {
+            setDraggingIndex(i);
+          }
 
           const targetDropId = getActiveDropId(
             id,
-            startPosition.xy[0] + grid.columnWidth / 2,
-            startPosition.xy[1] + grid.rowHeight / 2
+            x + grid.columnWidth / 2,
+            y + grid.rowHeight / 2
           );
 
-          // are we dragging over another dropzone?
           if (targetDropId && targetDropId !== id) {
-            startTraverse(
-              id,
-              targetDropId,
-              startPosition.xy[0],
-              startPosition.xy[1],
-              startIndex
-            );
+            startTraverse(id, targetDropId, x, y, i);
           } else {
             endTraverse();
           }
 
-          // get the target index
           const targetIndex =
             targetDropId !== id
               ? items.length
               : getTargetIndex(
-                  startIndex,
+                  i,
                   grid,
                   items.length,
                   state.delta[0],
                   state.delta[1]
                 );
 
-          // get our new order
-          const newOrder = swap(
-            order.current,
-            startIndex,
-            targetIndex
-          ) as number[];
-
-          // set springs given this order
-          setSprings(
-            getPositionsOnDrag(
-              newOrder,
-              grid,
-              i,
-              startIndex,
-              state.delta,
-              traverseIndex
-            )
-          );
+          if (targetIndex !== i) {
+            if (
+              (placeholder && placeholder.targetIndex !== targetIndex) ||
+              !placeholder
+            ) {
+              setPlaceholder({
+                targetIndex,
+                startIndex: i
+              });
+            }
+          } else if (placeholder) {
+            setPlaceholder(null);
+          }
         }
 
         /**
-         * Handle release
-         * @param state
+         * Handle end events
          */
 
-        function onEnd(state: StateType) {
-          const startIndex = order.current.indexOf(i);
-          const targetIndex = getTargetIndex(
-            startIndex,
-            grid,
-            items.length,
-            state.delta[0],
-            state.delta[1]
+        function onEnd(state: StateType, x: number, y: number) {
+          const targetDropId = getActiveDropId(
+            id,
+            x + grid.columnWidth / 2,
+            y + grid.rowHeight / 2
           );
 
-          const newOrder = swap(
-            order.current,
-            startIndex,
-            targetIndex
-          ) as number[];
+          const targetIndex =
+            targetDropId !== id
+              ? items.length
+              : getTargetIndex(
+                  i,
+                  grid,
+                  items.length,
+                  state.delta[0],
+                  state.delta[1]
+                );
 
-          const releaseTraverse =
-            traverse && traverse.sourceId === id ? traverse : undefined;
+          // traverse?
+          if (traverse) {
+            onChange(
+              traverse.sourceId,
+              traverse.sourceIndex,
+              traverse.targetIndex,
+              traverse.targetId
+            );
+          } else {
+            onChange(id, i, targetIndex);
+          }
 
-          setSprings(
-            getPositionsOnRelease(
-              newOrder,
-              grid,
-              startIndex,
-              releaseTraverse,
-              () => {
-                if (traverse) {
-                  onChange(
-                    traverse.sourceId,
-                    traverse.sourceIndex,
-                    traverse.targetIndex,
-                    traverse.targetId
-                  );
-                }
-              },
-              () => {
-                onChange(id, startIndex, targetIndex);
-              }
-            )
-          );
+          setPlaceholder(null);
+          setDraggingIndex(null);
         }
 
         return (
           <GridItem
-            key={i}
+            key={item.id}
+            item={item}
+            top={pos.xy[1]}
+            mountWithTraverseTarget={
+              isTraverseTarget ? [traverse!.tx, traverse!.ty] : undefined
+            }
+            left={pos.xy[0]}
             i={i}
-            width={grid.columnWidth}
-            height={rowHeight}
-            item={items[i]}
-            styles={styles}
             onMove={onMove}
             onEnd={onEnd}
+            grid={grid}
+            dragging={i === draggingIndex}
           >
             {children}
           </GridItem>
@@ -232,139 +204,6 @@ export function GridDropZone<T>({
       })}
     </div>
   );
-}
-
-/**
- * Get the relative top, left position for a particular
- * index in a grid
- * @param i
- * @param grid
- * @param traverseIndex (destination for traverse)
- */
-
-export function getPositionForIndex(
-  i: number,
-  { boxesPerRow, rowHeight, columnWidth }: GridSettings,
-  traverseIndex?: number | false | null
-) {
-  const index =
-    typeof traverseIndex == "number" ? (i >= traverseIndex ? i + 1 : i) : i;
-  const x = (index % boxesPerRow) * columnWidth;
-  const y = Math.floor(index / boxesPerRow) * rowHeight;
-  return {
-    xy: [x, y]
-  };
-}
-
-/**
- * Determine final animation state independently of dragging
- * @param grid
- */
-
-function getFinalPositions(
-  grid: GridSettings,
-  traverseIndex?: number | false | null
-) {
-  return (i: number) => {
-    return {
-      ...getPositionForIndex(i, grid, traverseIndex),
-      immediate: true,
-      reset: traverseIndex == null,
-      zIndex: "0",
-      scale: 1,
-      onRest: () => {},
-      // our grid needs to measure the container width before we
-      // make our children visible
-      opacity: grid.columnWidth === 0 ? 0 : 1
-    };
-  };
-}
-
-/**
- * Update our springs when dragging
- * @param order
- * @param grid
- * @param originalIndex
- * @param currentIndex
- * @param delta
- * @param traverseIndex
- */
-
-function getPositionsOnDrag(
-  order: number[],
-  grid: GridSettings,
-  originalIndex: number,
-  currentIndex: number,
-  delta: [number, number],
-  traverseIndex?: number | false | null
-) {
-  return (i: number) => {
-    return i === originalIndex
-      ? {
-          ...getDragPosition(currentIndex, grid, delta[0], delta[1], false),
-          immediate: true,
-          zIndex: "1",
-          scale: 1.1,
-          opacity: 0.8,
-          onRest: null
-        }
-      : {
-          ...getPositionForIndex(order.indexOf(i), grid, traverseIndex),
-          immediate: false,
-          zIndex: "0",
-          scale: 1,
-          opacity: 1,
-          onRest: null
-        };
-  };
-}
-
-/**
- * Update our springs upon release
- * @param order
- * @param grid
- * @param originalIndex
- * @param traverseIndex
- */
-
-function getPositionsOnRelease(
-  order: number[],
-  grid: GridSettings,
-  startIndex: number,
-  traverse?: TraverseType,
-  updateTraverse?: Function,
-  updateOrder?: Function
-) {
-  return (i: number) => {
-    const isSourceIndex = traverse && traverse.sourceIndex === i;
-
-    const shared = {
-      immediate: false,
-      zIndex: "0",
-      scale: 1,
-      opacity: 1
-    };
-
-    if (isSourceIndex) {
-      return {
-        ...shared,
-        xy: [traverse!.rx, traverse!.ry],
-        onRest: updateTraverse
-      };
-    }
-
-    const index = traverse
-      ? i >= traverse!.sourceIndex
-        ? i - 1
-        : i
-      : order.indexOf(i);
-
-    return {
-      ...getPositionForIndex(index, grid),
-      ...shared,
-      onRest: i === startIndex ? updateOrder : null
-    };
-  };
 }
 
 /**

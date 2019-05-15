@@ -2,10 +2,12 @@ import * as React from "react";
 import {
   CallbackType,
   StateType,
-  useGestureResponder
+  useGestureResponder,
+  ResponderEvent
 } from "react-gesture-responder";
 import { SpringValue, animated, interpolate, useSpring } from "react-spring";
-import { ChildRender } from "./grid-types";
+import { ChildRender, GridSettings } from "./grid-types";
+import { getDragPosition } from "./helpers";
 
 interface StyleProps {
   [x: string]: SpringValue<any>;
@@ -17,15 +19,16 @@ interface StyleProps {
 
 type GridItemProps<T> = {
   item: T;
-  width: number;
-  height: number;
-  onMove: CallbackType;
+  grid: GridSettings;
+  onMove: (state: StateType, x: number, y: number) => void;
   i: number;
   disableDrag?: boolean;
-  onEnd: (state: StateType) => void;
+  onEnd: (state: StateType, x: number, y: number) => void;
   children: ChildRender<T>;
+  dragging: boolean;
   top: number;
   left: number;
+  mountWithTraverseTarget?: [number, number];
 };
 
 export function GridItem<T>({
@@ -35,28 +38,54 @@ export function GridItem<T>({
   children,
   i,
   onMove,
-  width,
-  height,
+  mountWithTraverseTarget,
+  grid,
   disableDrag,
   onEnd
 }: GridItemProps<T>) {
+  const { columnWidth, rowHeight } = grid;
   const dragging = React.useRef(false);
+  const startCoords = React.useRef([left, top]);
 
   const [styles, set] = useSpring(() => ({
-    xy: [left, top]
+    xy: mountWithTraverseTarget || [left, top],
+    immediate: true,
+    zIndex: mountWithTraverseTarget ? "1" : "0"
   }));
+
+  // handle move updates imperatively
+  function handleMove(state: StateType, e: ResponderEvent) {
+    const x = startCoords.current[0] + state.delta[0];
+    const y = startCoords.current[1] + state.delta[1];
+    set({
+      xy: [x, y],
+      zIndex: "1",
+      immediate: true
+    });
+
+    onMove(state, x, y);
+  }
+
+  // handle end of drag
+  function handleEnd(state: StateType) {
+    const x = startCoords.current[0] + state.delta[0];
+    const y = startCoords.current[1] + state.delta[1];
+    dragging.current = false;
+    onEnd(state, x, y);
+  }
 
   const { bind } = useGestureResponder(
     {
-      onMoveShouldSet: () => {
+      onMoveShouldSet: state => {
         if (disableDrag) {
           return false;
         }
 
+        startCoords.current = [left, top];
         dragging.current = true;
         return true;
       },
-      onMove,
+      onMove: handleMove,
       onTerminationRequest: () => {
         if (dragging.current) {
           return false;
@@ -64,14 +93,8 @@ export function GridItem<T>({
 
         return true;
       },
-      onTerminate: state => {
-        dragging.current = false;
-        onEnd(state);
-      },
-      onRelease: state => {
-        dragging.current = false;
-        onEnd(state);
-      }
+      onTerminate: handleEnd,
+      onRelease: handleEnd
     },
     {
       enableMouse: true
@@ -79,22 +102,27 @@ export function GridItem<T>({
   );
 
   React.useEffect(() => {
-    set({
-      xy: [left, top]
-    });
-  }, [left, top]);
+    if (!dragging.current) {
+      set({
+        xy: [left, top],
+        zIndex: "0",
+        immediate: false
+      });
+    }
+  }, [dragging.current, left, top]);
 
   return (
     <animated.div
       {...bind}
       style={{
+        zIndex: styles.zIndex,
         position: "absolute",
-        width: width + "px",
-        height: height + "px",
+        width: columnWidth + "px",
+        height: rowHeight + "px",
         boxSizing: "border-box",
         transform: interpolate(
-          [styles.xy],
-          (x: any) => `translate3d(${x[0]}px, ${x[1]}px, 0)`
+          styles.xy,
+          (x, y) => `translate3d(${x}px, ${y}px, 0)`
         )
       }}
     >
