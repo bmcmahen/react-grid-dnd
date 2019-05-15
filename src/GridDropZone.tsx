@@ -39,6 +39,8 @@ export function GridDropZone<T>({
   const traverseIndex =
     traverse && traverse.targetId === id ? traverse.targetIndex : null;
 
+  console.log("ITEMS", items);
+
   const grid: GridSettings = {
     columnWidth: bounds.width / boxesPerRow,
     boxesPerRow,
@@ -88,6 +90,7 @@ export function GridDropZone<T>({
 
   React.useEffect(() => {
     order.current = items.map((_, i) => i);
+    // setSprings(getFinalPositions(grid));
   }, [order, items]);
 
   /**
@@ -106,7 +109,7 @@ export function GridDropZone<T>({
          */
 
         function onMove(state: StateType) {
-          const startIndex = order.current.indexOf(i);
+          const startIndex = i;
           const startPosition = getDragPosition(
             startIndex,
             grid,
@@ -204,11 +207,12 @@ export function GridDropZone<T>({
                     traverse.targetId
                   );
                 }
+              },
+              () => {
+                onChange(id, startIndex, targetIndex);
               }
             )
           );
-
-          order.current = newOrder;
         }
 
         return (
@@ -264,10 +268,11 @@ function getFinalPositions(
   return (i: number) => {
     return {
       ...getPositionForIndex(i, grid, traverseIndex),
-      immediate: false,
+      immediate: true,
       reset: traverseIndex == null,
       zIndex: "0",
       scale: 1,
+      onRest: () => {},
       // our grid needs to measure the container width before we
       // make our children visible
       opacity: grid.columnWidth === 0 ? 0 : 1
@@ -327,7 +332,8 @@ function getPositionsOnRelease(
   grid: GridSettings,
   startIndex: number,
   traverse?: TraverseType,
-  onRest?: Function
+  updateTraverse?: Function,
+  updateOrder?: Function
 ) {
   return (i: number) => {
     const isSourceIndex = traverse && traverse.sourceIndex === i;
@@ -343,7 +349,7 @@ function getPositionsOnRelease(
       return {
         ...shared,
         xy: [traverse!.rx, traverse!.ry],
-        onRest: onRest
+        onRest: updateTraverse
       };
     }
 
@@ -356,12 +362,7 @@ function getPositionsOnRelease(
     return {
       ...getPositionForIndex(index, grid),
       ...shared,
-      onRest:
-        i === startIndex
-          ? () => {
-              console.log("UPDATE ORDER");
-            }
-          : null
+      onRest: i === startIndex ? updateOrder : null
     };
   };
 }

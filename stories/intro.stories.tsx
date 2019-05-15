@@ -1,6 +1,7 @@
 import * as React from "react";
 import { storiesOf } from "@storybook/react";
 import { GridContext, GridDropZone, GridContextProvider } from "../src";
+import swap from "../src/swap";
 
 const move = (
   source: Array<any>,
@@ -42,6 +43,18 @@ function DragBetweenExample() {
     targetIndex: number,
     targetId?: string
   ) {
+    if (!targetId) {
+      if (sourceId === "right") {
+        console.log(sourceIndex, targetIndex);
+        const arr = swap(right, sourceIndex, targetIndex);
+        console.log("NEXZT", arr);
+        setRight(arr);
+      } else {
+        setLeft(swap(left, sourceIndex, targetIndex));
+      }
+      return;
+    }
+
     if (sourceId === "left") {
       console.log("set", sourceId, sourceIndex, targetIndex, targetId);
       const [p, d] = move(left, right, sourceIndex, targetIndex);

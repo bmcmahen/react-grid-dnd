@@ -4,7 +4,7 @@ import {
   StateType,
   useGestureResponder
 } from "react-gesture-responder";
-import { SpringValue, animated, interpolate } from "react-spring";
+import { SpringValue, animated, interpolate, useSpring } from "react-spring";
 import { ChildRender } from "./grid-types";
 
 interface StyleProps {
@@ -23,13 +23,15 @@ type GridItemProps<T> = {
   i: number;
   disableDrag?: boolean;
   onEnd: (state: StateType) => void;
-  styles: StyleProps;
   children: ChildRender<T>;
+  top: number;
+  left: number;
 };
 
 export function GridItem<T>({
-  styles,
   item,
+  top,
+  left,
   children,
   i,
   onMove,
@@ -39,6 +41,10 @@ export function GridItem<T>({
   onEnd
 }: GridItemProps<T>) {
   const dragging = React.useRef(false);
+
+  const [styles, set] = useSpring(() => ({
+    xy: [left, top]
+  }));
 
   const { bind } = useGestureResponder(
     {
@@ -72,6 +78,12 @@ export function GridItem<T>({
     }
   );
 
+  React.useEffect(() => {
+    set({
+      xy: [left, top]
+    });
+  }, [left, top]);
+
   return (
     <animated.div
       {...bind}
@@ -79,12 +91,10 @@ export function GridItem<T>({
         position: "absolute",
         width: width + "px",
         height: height + "px",
-        zIndex: styles.zIndex,
-        opacity: styles.opacity,
         boxSizing: "border-box",
         transform: interpolate(
-          [styles.xy, styles.scale],
-          (x: any, s) => `translate3d(${x[0]}px, ${x[1]}px, 0) scale(${s})`
+          [styles.xy],
+          (x: any) => `translate3d(${x[0]}px, ${x[1]}px, 0)`
         )
       }}
     >
