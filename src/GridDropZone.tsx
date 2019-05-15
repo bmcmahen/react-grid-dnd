@@ -51,7 +51,9 @@ export function GridDropZone<T>({
   );
 
   const traverseIndex =
-    traverse && traverse.targetId === id ? traverse.targetIndex : null;
+    traverse && !traverse.execute && traverse.targetId === id
+      ? traverse.targetIndex
+      : null;
 
   const grid: GridSettings = {
     columnWidth: bounds.width / boxesPerRow,
@@ -207,6 +209,7 @@ export function GridDropZone<T>({
                 item={item}
                 top={pos.xy[1]}
                 disableDrag={disableDrag}
+                endTraverse={endTraverse}
                 mountWithTraverseTarget={
                   isTraverseTarget ? [traverse!.tx, traverse!.ty] : undefined
                 }

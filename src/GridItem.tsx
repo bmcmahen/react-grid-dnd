@@ -20,6 +20,7 @@ type GridItemProps<T> = {
   grid: GridSettings;
   onMove: (state: StateType, x: number, y: number) => void;
   i: number;
+  endTraverse: () => void;
   disableDrag?: boolean;
   onEnd: (state: StateType, x: number, y: number) => void;
   children: ChildRender<T>;
@@ -41,6 +42,7 @@ export function GridItem<T>({
   mountWithTraverseTarget,
   grid,
   disableDrag,
+  endTraverse,
   onEnd
 }: GridItemProps<T>) {
   const { columnWidth, rowHeight } = grid;
@@ -49,6 +51,8 @@ export function GridItem<T>({
 
   const [styles, set] = useSpring(() => {
     if (mountWithTraverseTarget) {
+      // this feels really brittle. unsure of a better
+      // solution for now.
       return {
         xy: mountWithTraverseTarget,
         immediate: true,
@@ -56,6 +60,8 @@ export function GridItem<T>({
         scale: 1.1,
         opacity: 0.8
       };
+
+      endTraverse();
     }
 
     return {

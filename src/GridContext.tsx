@@ -2,6 +2,7 @@ import * as React from "react";
 import { Bounds } from "./use-measure";
 import { GridSettings, TraverseType } from "./grid-types";
 import { getPositionForIndex, getIndexFromCoordinates } from "./helpers";
+import { move } from "./move";
 
 interface RegisterOptions extends Bounds {
   /** The number of documents in each grid */
@@ -58,6 +59,74 @@ interface GridContextProviderProps {
     targetId?: string
   ) => void;
 }
+
+// interface ChangeOptions {
+//   sourceId: string;
+//   sourceIndex: number;
+//   targetIndex: number;
+//   targetId?: string;
+// }
+
+// type Action<K, V = void> = V extends void ? { type: K } : { type: K } & V;
+
+// export type ActionType<T> =
+//   | Action<"UPDATE_LIST", { value: GridItemType<T> }>
+//   | Action<"CHANGE_LIST", { value: ChangeOptions }>
+//   | Action<"SET_TRAVERSE", { value: TraverseType | null }>
+//   | Action<"END_TRAVERSE">
+//   | Action<"SET_PLACEHOLDER", { value: any }>
+//   | Action<"UNSET_PLACEHOLDER", { value: any }>;
+
+// type GridItemType<T> = {
+//   [key: string]: Array<T>;
+// };
+
+// type StateType<T> = {
+//   traverse: TraverseType | null;
+//   grids: GridItemType<T>;
+// };
+
+// function reducer<T>(state: StateType<T>, action: ActionType<T>) {
+//   switch (action.type) {
+//     case "UPDATE_LIST":
+//       return {
+//         ...state,
+//         ...action.value
+//       };
+//     case "CHANGE_LIST": {
+//       // perform a traversal
+//       if (action.value.targetId) {
+//         const sourceList = state.grids[action.value.sourceId];
+//         const targetList = state.grids[action.value.targetId];
+//         const [source, target] = move(
+//           sourceList,
+//           targetList,
+//           action.value.sourceIndex,
+//           action.value.targetIndex
+//         );
+//         return {
+//           ...state,
+//           traversal: {
+//             ...state.traverse,
+//             execute: true
+//           },
+//           grids: {
+//             ...state.grids,
+//             [action.value.sourceId]: source,
+//             [action.value.targetId]: target
+//           }
+//         };
+//       }
+
+//       // perform regular change
+
+//       return {
+//         ...state,
+//         traverse: null
+//       };
+//     }
+//   }
+// }
 
 export function GridContextProvider({
   children,
@@ -232,8 +301,11 @@ export function GridContextProvider({
     targetIndex: number,
     targetId?: string
   ) {
+    setTraverse({
+      ...traverse!,
+      execute: true
+    });
     onChange(sourceId, sourceIndex, targetIndex, targetId);
-    setTraverse(null);
   }
 
   return (

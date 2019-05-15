@@ -45,9 +45,7 @@ function DragBetweenExample() {
   ) {
     if (!targetId) {
       if (sourceId === "right") {
-        console.log(sourceIndex, targetIndex);
         const arr = swap(right, sourceIndex, targetIndex);
-        console.log("NEXZT", arr);
         setRight(arr);
       } else {
         setLeft(swap(left, sourceIndex, targetIndex));
@@ -56,14 +54,11 @@ function DragBetweenExample() {
     }
 
     if (sourceId === "left") {
-      console.log("set", sourceId, sourceIndex, targetIndex, targetId);
       const [p, d] = move(left, right, sourceIndex, targetIndex);
-      console.log("RIGHT", d);
-      console.log("LEFT", p);
+
       setRight(d);
       setLeft(p);
     } else {
-      console.log("set", sourceId, sourceIndex, targetIndex, targetId);
       const [d, p] = move(right, left, sourceIndex, targetIndex);
       setRight(d);
       setLeft(p);
@@ -76,7 +71,8 @@ function DragBetweenExample() {
         style={{
           display: "flex",
           height: "400px",
-          border: "1px solid red"
+          border: "1px solid red",
+          touchAction: "none"
         }}
       >
         <GridDropZone
@@ -111,7 +107,8 @@ function DragBetweenExample() {
           style={{
             flex: 1,
             height: "400px",
-            border: "1px solid blue"
+            border: "1px solid blue",
+            touchAction: "none"
           }}
           id="right"
           boxesPerRow={4}
