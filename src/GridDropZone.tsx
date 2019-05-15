@@ -76,9 +76,9 @@ export function GridDropZone<T>({
 
   React.useEffect(() => {
     if (typeof traverseIndex === "number") {
-      console.log("set placeholder");
+      setSprings(getFinalPositions(grid, traverseIndex));
     }
-  }, [traverseIndex, order.current, setSprings]);
+  }, [grid, traverseIndex, order.current, setSprings]);
 
   /**
    * Maintain updated order whenever our list
@@ -89,8 +89,11 @@ export function GridDropZone<T>({
     order.current = items.map((_, i) => i);
   }, [order, items]);
 
+  /**
+   * If our bounds change, alter our positions
+   */
+
   React.useEffect(() => {
-    console.log("RUNNING");
     setSprings(getFinalPositions(grid));
   }, [bounds]);
 
@@ -186,9 +189,15 @@ export function GridDropZone<T>({
             traverse && traverse.sourceId === id ? traverse : undefined;
 
           setSprings(
-            getPositionsOnRelease(grid, releaseTraverse, () => {
-              console.log("SWITCH TARGETS");
-            })
+            getPositionsOnRelease(
+              newOrder,
+              grid,
+              startIndex,
+              releaseTraverse,
+              () => {
+                console.log("SWITCH TARGETS");
+              }
+            )
           );
 
           order.current = newOrder;
@@ -239,12 +248,15 @@ export function getPositionForIndex(
  * @param grid
  */
 
-function getFinalPositions(grid: GridSettings) {
+function getFinalPositions(
+  grid: GridSettings,
+  traverseIndex?: number | false | null
+) {
   return (i: number) => {
     return {
-      ...getPositionForIndex(i, grid),
+      ...getPositionForIndex(i, grid, traverseIndex),
       immediate: false,
-      reset: true,
+      reset: !traverseIndex,
       zIndex: "0",
       scale: 1,
       // our grid needs to measure the container width before we
@@ -302,7 +314,9 @@ function getPositionsOnDrag(
  */
 
 function getPositionsOnRelease(
+  order: number[],
   grid: GridSettings,
+  startIndex: number,
   traverse?: TraverseType,
   onRest?: Function
 ) {
@@ -324,12 +338,15 @@ function getPositionsOnRelease(
       };
     }
 
-    const index = traverse && i >= traverse.sourceIndex ? i - 1 : i;
-
     return {
-      ...getPositionForIndex(index, grid),
+      ...getPositionForIndex(order.indexOf(i), grid),
       ...shared,
-      onRest: null
+      onRest:
+        i === startIndex
+          ? () => {
+              console.log("UPDATE ORDER");
+            }
+          : null
     };
   };
 }
