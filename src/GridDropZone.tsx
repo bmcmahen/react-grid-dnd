@@ -338,8 +338,14 @@ function getPositionsOnRelease(
       };
     }
 
+    const index = traverse
+      ? i >= traverse!.sourceIndex
+        ? i - 1
+        : i
+      : order.indexOf(i);
+
     return {
-      ...getPositionForIndex(order.indexOf(i), grid),
+      ...getPositionForIndex(index, grid),
       ...shared,
       onRest:
         i === startIndex
