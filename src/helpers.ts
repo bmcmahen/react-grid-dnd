@@ -48,3 +48,44 @@ export function getPositionForIndex(
     xy: [x, y]
   };
 }
+
+/**
+ * Given relative coordinates, determine which index
+ * we are currently in
+ * @param x
+ * @param y
+ * @param param2
+ */
+
+export function getIndexFromCoordinates(
+  x: number,
+  y: number,
+  { rowHeight, boxesPerRow, columnWidth }: GridSettings,
+  count: number
+) {
+  const index =
+    Math.floor(y / rowHeight) * boxesPerRow + Math.floor(x / columnWidth);
+  return index >= count ? count : index;
+}
+
+/**
+ * Get the target index during a drag
+ * @param startIndex
+ * @param grid
+ * @param count
+ * @param dx
+ * @param dy
+ */
+
+export function getTargetIndex(
+  startIndex: number,
+  grid: GridSettings,
+  count: number,
+  dx: number,
+  dy: number
+) {
+  const {
+    xy: [cx, cy]
+  } = getDragPosition(startIndex, grid, dx, dy, true);
+  return getIndexFromCoordinates(cx, cy, grid, count);
+}

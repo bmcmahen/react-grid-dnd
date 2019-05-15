@@ -1,8 +1,7 @@
 import * as React from "react";
 import { Bounds } from "./use-measure";
 import { GridSettings, TraverseType } from "./grid-types";
-import { getIndexFromCoordinates } from "./GridDropZone";
-import { getPositionForIndex } from "./helpers";
+import { getPositionForIndex, getIndexFromCoordinates } from "./helpers";
 
 interface RegisterOptions extends Bounds {
   /** The number of documents in each grid */
