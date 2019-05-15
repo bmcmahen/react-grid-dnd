@@ -1,13 +1,11 @@
 import * as React from "react";
 import {
-  CallbackType,
   StateType,
   useGestureResponder,
   ResponderEvent
 } from "react-gesture-responder";
 import { SpringValue, animated, interpolate, useSpring } from "react-spring";
 import { ChildRender, GridSettings } from "./grid-types";
-import { getDragPosition } from "./helpers";
 
 interface StyleProps {
   [x: string]: SpringValue<any>;
@@ -28,6 +26,7 @@ type GridItemProps<T> = {
   dragging: boolean;
   top: number;
   left: number;
+  /** values represent the starrt point where the item should mount */
   mountWithTraverseTarget?: [number, number];
 };
 
@@ -47,11 +46,25 @@ export function GridItem<T>({
   const dragging = React.useRef(false);
   const startCoords = React.useRef([left, top]);
 
-  const [styles, set] = useSpring(() => ({
-    xy: mountWithTraverseTarget || [left, top],
-    immediate: true,
-    zIndex: mountWithTraverseTarget ? "1" : "0"
-  }));
+  const [styles, set] = useSpring(() => {
+    if (mountWithTraverseTarget) {
+      return {
+        xy: mountWithTraverseTarget,
+        immediate: true,
+        zIndex: "1",
+        scale: 1.1,
+        opacity: 0.8
+      };
+    }
+
+    return {
+      xy: [left, top],
+      immediate: true,
+      zIndex: "0",
+      scale: 1,
+      opacity: 1
+    };
+  });
 
   // handle move updates imperatively
   function handleMove(state: StateType, e: ResponderEvent) {
@@ -60,7 +73,9 @@ export function GridItem<T>({
     set({
       xy: [x, y],
       zIndex: "1",
-      immediate: true
+      immediate: true,
+      opacity: 0.8,
+      scale: 1.1
     });
 
     onMove(state, x, y);
@@ -101,11 +116,18 @@ export function GridItem<T>({
     }
   );
 
+  /**
+   * Update our position when left or top
+   * values change
+   */
+
   React.useEffect(() => {
     if (!dragging.current) {
       set({
         xy: [left, top],
         zIndex: "0",
+        opacity: 1,
+        scale: 1,
         immediate: false
       });
     }
@@ -118,11 +140,13 @@ export function GridItem<T>({
         zIndex: styles.zIndex,
         position: "absolute",
         width: columnWidth + "px",
+        opacity: styles.opacity,
         height: rowHeight + "px",
         boxSizing: "border-box",
         transform: interpolate(
-          styles.xy,
-          (x, y) => `translate3d(${x}px, ${y}px, 0)`
+          [styles.xy, styles.scale],
+          (xy: any, s: any) =>
+            `translate3d(${xy[0]}px, ${xy[1]}px, 0) scale(${s})`
         )
       }}
     >

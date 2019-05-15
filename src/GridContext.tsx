@@ -9,6 +9,8 @@ interface RegisterOptions extends Bounds {
   count: number;
   /** grid info (boxes per row) */
   grid: GridSettings;
+  /** whether the dropzone is disabled for dropping */
+  disableDrop: boolean;
 }
 
 interface GridContextType {
@@ -145,6 +147,7 @@ export function GridContextProvider({
     // probably faster just using an array for dropRefs
     for (const [key, bounds] of dropRefs.current.entries()) {
       if (
+        !bounds.disableDrop &&
         fx > bounds.left &&
         fx < bounds.right &&
         fy > bounds.top &&
@@ -189,7 +192,6 @@ export function GridContextProvider({
     const { x: dx, y: dy } = diffDropzones(sourceId, targetId);
 
     // only update traverse if targetId or targetIndex have changed
-
     if (
       !traverse ||
       !(

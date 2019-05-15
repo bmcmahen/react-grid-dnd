@@ -1,9 +1,8 @@
 import * as React from "react";
-import { useSprings } from "react-spring";
 import { StateType } from "react-gesture-responder";
 import { useMeasure } from "./use-measure";
 import { GridContext } from "./GridContext";
-import { GridSettings, ChildRender, TraverseType } from "./grid-types";
+import { GridSettings, ChildRender } from "./grid-types";
 import { GridItem } from "./GridItem";
 import swap from "./swap";
 import { getPositionForIndex } from "./helpers";
@@ -14,6 +13,8 @@ type GridDropZoneProps<T> = {
   rowHeight: number;
   id: string;
   children: ChildRender<T>;
+  disableDrag?: boolean;
+  disableDrop?: boolean;
   style?: React.CSSProperties;
 };
 
@@ -27,6 +28,8 @@ export function GridDropZone<T>({
   id,
   boxesPerRow,
   children,
+  disableDrag = false,
+  disableDrop = false,
   rowHeight,
   ...other
 }: GridDropZoneProps<T>) {
@@ -69,7 +72,8 @@ export function GridDropZone<T>({
       width: bounds.width,
       height: bounds.height,
       count: items.length,
-      grid
+      grid,
+      disableDrop
     });
   }, [items, bounds, id, grid]);
 
@@ -188,6 +192,7 @@ export function GridDropZone<T>({
             key={item.id}
             item={item}
             top={pos.xy[1]}
+            disableDrag={disableDrag}
             mountWithTraverseTarget={
               isTraverseTarget ? [traverse!.tx, traverse!.ty] : undefined
             }
