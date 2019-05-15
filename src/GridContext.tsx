@@ -221,6 +221,12 @@ export function GridContextProvider({
     setTraverse(null);
   }
 
+  /**
+   * Perform a change to list item arrays.
+   * If it doesn't include targetId, it's a switch
+   * of order within the one array itself.
+   */
+
   function onSwitch(
     sourceId: string,
     sourceIndex: number,
