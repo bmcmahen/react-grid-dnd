@@ -23,6 +23,12 @@ interface GridContextType {
   ) => void;
   traverse: TraverseType | null;
   endTraverse: () => void;
+  onChange: (
+    sourceId: string,
+    sourceIndex: number,
+    targetIndex: number,
+    targetId?: string
+  ) => void;
 }
 
 const noop = () => {
@@ -37,14 +43,24 @@ export const GridContext = React.createContext<GridContextType>({
   getActiveDropId: noop,
   startTraverse: noop,
   traverse: null,
-  endTraverse: noop
+  endTraverse: noop,
+  onChange: noop
 });
 
 interface GridContextProviderProps {
   children: React.ReactNode;
+  onChange: (
+    sourceId: string,
+    sourceIndex: number,
+    targetIndex: number,
+    targetId?: string
+  ) => void;
 }
 
-export function GridContextProvider({ children }: GridContextProviderProps) {
+export function GridContextProvider({
+  children,
+  onChange
+}: GridContextProviderProps) {
   const [traverse, setTraverse] = React.useState<TraverseType | null>(null);
   const dropRefs = React.useRef<Map<string, RegisterOptions>>(new Map());
 
@@ -189,6 +205,16 @@ export function GridContextProvider({ children }: GridContextProviderProps) {
     setTraverse(null);
   }
 
+  function onSwitch(
+    sourceId: string,
+    sourceIndex: number,
+    targetIndex: number,
+    targetId?: string
+  ) {
+    setTraverse(null);
+    onChange(sourceId, sourceIndex, targetIndex, targetId);
+  }
+
   return (
     <GridContext.Provider
       value={{
@@ -197,7 +223,8 @@ export function GridContextProvider({ children }: GridContextProviderProps) {
         getActiveDropId,
         startTraverse,
         traverse,
-        endTraverse
+        endTraverse,
+        onChange: onSwitch
       }}
     >
       {children}

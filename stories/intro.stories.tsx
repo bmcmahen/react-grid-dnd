@@ -2,6 +2,22 @@ import * as React from "react";
 import { storiesOf } from "@storybook/react";
 import { GridContext, GridDropZone, GridContextProvider } from "../src";
 
+const move = (
+  source: Array<any>,
+  destination: Array<any>,
+  droppableSource: number,
+  droppableDestination: number
+) => {
+  const sourceClone = Array.from(source);
+  const destClone = Array.from(destination);
+
+  const [removed] = sourceClone.splice(droppableSource, 1);
+
+  destClone.splice(droppableDestination, 0, removed);
+
+  return [sourceClone, destClone];
+};
+
 function DragBetweenExample() {
   const [left, setLeft] = React.useState([
     { id: 1, name: "ben" },
@@ -20,8 +36,29 @@ function DragBetweenExample() {
     { id: 12, name: "katie" }
   ]);
 
+  function onChange(
+    sourceId: string,
+    sourceIndex: number,
+    targetIndex: number,
+    targetId?: string
+  ) {
+    if (sourceId === "left") {
+      console.log("set", sourceId, sourceIndex, targetIndex, targetId);
+      const [p, d] = move(left, right, sourceIndex, targetIndex);
+      console.log("RIGHT", d);
+      console.log("LEFT", p);
+      setRight(d);
+      setLeft(p);
+    } else {
+      console.log("set", sourceId, sourceIndex, targetIndex, targetId);
+      const [d, p] = move(right, left, sourceIndex, targetIndex);
+      setRight(d);
+      setLeft(p);
+    }
+  }
+
   return (
-    <GridContextProvider>
+    <GridContextProvider onChange={onChange}>
       <div
         style={{
           display: "flex",

@@ -29,6 +29,7 @@ export function GridDropZone<T>({
     startTraverse,
     endTraverse,
     register,
+    onChange,
     remove,
     getActiveDropId
   } = React.useContext(GridContext);
@@ -36,7 +37,7 @@ export function GridDropZone<T>({
   const { bounds } = useMeasure(ref);
   const order = React.useRef(items.map((_, i) => i));
   const traverseIndex =
-    traverse && traverse.targetId === id && traverse.targetIndex;
+    traverse && traverse.targetId === id ? traverse.targetIndex : null;
 
   const grid: GridSettings = {
     columnWidth: bounds.width / boxesPerRow,
@@ -195,7 +196,14 @@ export function GridDropZone<T>({
               startIndex,
               releaseTraverse,
               () => {
-                console.log("SWITCH TARGETS");
+                if (traverse) {
+                  onChange(
+                    traverse.sourceId,
+                    traverse.sourceIndex,
+                    traverse.targetIndex,
+                    traverse.targetId
+                  );
+                }
               }
             )
           );
@@ -235,7 +243,8 @@ export function getPositionForIndex(
   { boxesPerRow, rowHeight, columnWidth }: GridSettings,
   traverseIndex?: number | false | null
 ) {
-  const index = traverseIndex ? (i >= traverseIndex ? i + 1 : i) : i;
+  const index =
+    typeof traverseIndex == "number" ? (i >= traverseIndex ? i + 1 : i) : i;
   const x = (index % boxesPerRow) * columnWidth;
   const y = Math.floor(index / boxesPerRow) * rowHeight;
   return {
@@ -256,7 +265,7 @@ function getFinalPositions(
     return {
       ...getPositionForIndex(i, grid, traverseIndex),
       immediate: false,
-      reset: !traverseIndex,
+      reset: traverseIndex == null,
       zIndex: "0",
       scale: 1,
       // our grid needs to measure the container width before we
