@@ -36,6 +36,7 @@ export function GridItem<T>({
   left,
   children,
   i,
+  dragging: isDragging,
   onMove,
   mountWithTraverseTarget,
   grid,
@@ -150,7 +151,11 @@ export function GridItem<T>({
         )
       }}
     >
-      {children(item, i)}
+      {children(item, i, {
+        dragging: isDragging,
+        disabled: !!disableDrag,
+        grid
+      })}
     </animated.div>
   );
 }

@@ -4,7 +4,17 @@ export interface GridSettings {
   columnWidth: number;
 }
 
-export type ChildRender<T> = (item: T, i: number) => React.ReactNode;
+interface ChildRenderProps {
+  grid: GridSettings;
+  disabled: boolean;
+  dragging: boolean;
+}
+
+export type ChildRender<T> = (
+  item: T,
+  i: number,
+  props: ChildRenderProps
+) => React.ReactNode;
 
 /**
  * A traverse captures information about dragging a grid item
