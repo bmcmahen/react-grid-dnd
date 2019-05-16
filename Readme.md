@@ -1,6 +1,6 @@
 # react-grid-dnd
 
-Grid style drag and drop, built with React.
+Grid style drag and drop, built with React. See a live example on [codesandbox](https://codesandbox.io/embed/gracious-wozniak-kj9w8).
 
 ## Features
 
