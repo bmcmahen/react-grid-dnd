@@ -1,4 +1,8 @@
-export default function move(array: any, moveIndex: any, toIndex: any) {
+export default function move<T>(
+  array: Array<T>,
+  moveIndex: number,
+  toIndex: number
+) {
   /* #move - Moves an array item from one position in an array to another.
      Note: This is a pure function so a new array will be returned, instead
      of altering the array argument.

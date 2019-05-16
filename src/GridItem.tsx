@@ -144,6 +144,7 @@ export function GridItem<T>({
     <animated.div
       {...bind}
       style={{
+        cursor: "grab",
         zIndex: styles.zIndex,
         position: "absolute",
         width: columnWidth + "px",

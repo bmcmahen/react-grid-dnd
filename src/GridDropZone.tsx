@@ -12,6 +12,7 @@ type GridDropZoneProps<T> = {
   boxesPerRow: number;
   rowHeight: number;
   id: string;
+  getKey: (item: T) => string | number;
   children: ChildRender<T>;
   disableDrag?: boolean;
   disableDrop?: boolean;
@@ -28,6 +29,7 @@ export function GridDropZone<T>({
   id,
   boxesPerRow,
   children,
+  getKey,
   disableDrag = false,
   disableDrop = false,
   rowHeight,
@@ -205,7 +207,7 @@ export function GridDropZone<T>({
 
             return (
               <GridItem
-                key={item.id}
+                key={getKey(item)}
                 item={item}
                 top={pos.xy[1]}
                 disableDrag={disableDrag}
