@@ -80,7 +80,6 @@ function DragBetweenExample({ single }: any) {
       <div
         style={{
           display: "flex",
-
           touchAction: "none"
         }}
       >

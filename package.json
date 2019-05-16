@@ -8,6 +8,13 @@
   "author": "Ben McMahen",
   "license": "MIT",
   "private": false,
+  "keywords": [
+    "react",
+    "gesture",
+    "drag and drop",
+    "dnd",
+    "grid"
+  ],
   "scripts": {
     "test": "jest",
     "test-watch": "jest -w",
@@ -16,6 +23,14 @@
     "build-other": "rimraf umd && rimraf cjs && rollup -c",
     "build": "yarn run build-esm && yarn run build-other",
     "prepublishOnly": "yarn run build"
+  },
+  "homepage": "https://github.com/bmcmahen/react-dnd-grid",
+  "bugs": {
+    "url": "https://github.com/bmcmahen/react-dnd-grid/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmcmahen/react-dnd-grid.git"
   },
   "peerDependencies": {
     "react": "^16.8.6",
