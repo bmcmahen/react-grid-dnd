@@ -1,4 +1,4 @@
-# react-dnd-grid
+# react-grid-dnd
 
 Grid style drag and drop, built with React.
 
@@ -14,13 +14,13 @@ Grid style drag and drop, built with React.
 Install using yarn or npm.
 
 ```
-yarn add react-dnd-grid
+yarn add react-grid-dnd
 ```
 
 ## Usage
 
 ```jsx
-import { GridContextProvider, GridDropZone, swap } from "react-dnd-grid";
+import { GridContextProvider, GridDropZone, swap } from "react-grid-dnd";
 
 function Example() {
   const [items, setItems] = React.useState([]); // supply your own state

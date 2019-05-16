@@ -13,7 +13,7 @@ const plugins = [
   typescript({
     typescript: require("typescript")
   }),
-  commonjs(commonjsOptions),
+  commonjs(),
   json(),
   cleanup(),
   filesize()

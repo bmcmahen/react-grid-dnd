@@ -1,5 +1,5 @@
 {
-  "name": "react-dnd-grid",
+  "name": "react-grid-dnd",
   "version": "1.0.0",
   "description": "grid style drag and drop for react",
   "main": "cjs/index.js",
@@ -24,13 +24,13 @@
     "build": "yarn run build-esm && yarn run build-other",
     "prepublishOnly": "yarn run build"
   },
-  "homepage": "https://github.com/bmcmahen/react-dnd-grid",
+  "homepage": "https://github.com/bmcmahen/react-grid-dnd",
   "bugs": {
-    "url": "https://github.com/bmcmahen/react-dnd-grid/issues"
+    "url": "https://github.com/bmcmahen/react-grid-dnd/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bmcmahen/react-dnd-grid.git"
+    "url": "https://github.com/bmcmahen/react-grid-dnd.git"
   },
   "peerDependencies": {
     "react": "^16.8.6",
