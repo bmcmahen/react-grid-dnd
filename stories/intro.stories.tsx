@@ -2,6 +2,7 @@ import * as React from "react";
 import { storiesOf } from "@storybook/react";
 import { GridContext, GridDropZone, GridContextProvider } from "../src";
 import swap from "../src/swap";
+import { GridItem } from "../src/GridItem";
 
 const move = (
   source: Array<any>,
@@ -94,12 +95,10 @@ function DragBetweenExample({ single }: any) {
           }}
           id="left"
           boxesPerRow={4}
-          getKey={item => item.id}
           rowHeight={70}
-          items={left}
         >
-          {item => {
-            return (
+          {left.map(item => (
+            <GridItem key={item.name}>
               <div
                 style={{
                   padding: "10px",
@@ -125,8 +124,8 @@ function DragBetweenExample({ single }: any) {
                   {item.name[0].toUpperCase()}
                 </div>
               </div>
-            );
-          }}
+            </GridItem>
+          ))}
         </GridDropZone>
 
         {!single && (
@@ -140,40 +139,42 @@ function DragBetweenExample({ single }: any) {
               touchAction: "none"
             }}
             id="right"
-            getKey={item => item.id}
             boxesPerRow={4}
             rowHeight={70}
-            items={right}
           >
-            {item => {
-              return (
-                <div
-                  style={{
-                    padding: "10px",
-                    width: "100%",
-                    height: "100%",
-                    boxSizing: "border-box"
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "50px",
-                      height: "50px",
-                      boxSizing: "border-box",
-                      background: "#08e",
-                      display: "flex",
-                      justifyContent: "center",
-                      color: "white",
-                      fontFamily: "helvetica",
-                      alignItems: "center",
-                      borderRadius: "50%"
-                    }}
-                  >
-                    {item.name[0].toUpperCase()}
-                  </div>
-                </div>
-              );
-            }}
+            {right.map(item => (
+              <GridItem key={item.name}>
+                {(Component: any, props: any) => (
+                  <Component {...props}>
+                    <div
+                      style={{
+                        padding: "10px",
+                        width: "100%",
+                        height: "100%",
+                        boxSizing: "border-box"
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          boxSizing: "border-box",
+                          background: "#08e",
+                          display: "flex",
+                          justifyContent: "center",
+                          color: "white",
+                          fontFamily: "helvetica",
+                          alignItems: "center",
+                          borderRadius: "50%"
+                        }}
+                      >
+                        {item.name[0].toUpperCase()}
+                      </div>
+                    </div>
+                  </Component>
+                )}
+              </GridItem>
+            ))}
           </GridDropZone>
         )}
       </div>

@@ -10,10 +10,15 @@ interface ChildRenderProps {
   dragging: boolean;
 }
 
-export type ChildRender<T> = (
-  item: T,
-  i: number,
-  props: ChildRenderProps
+export type ChildRender = (
+  component: any,
+  props: any,
+  state: {
+    dragging: boolean;
+    disabled: boolean;
+    i: number;
+    grid: GridSettings;
+  }
 ) => React.ReactNode;
 
 /**

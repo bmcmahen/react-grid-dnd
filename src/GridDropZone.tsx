@@ -6,14 +6,13 @@ import { GridSettings, ChildRender } from "./grid-types";
 import { GridItem } from "./GridItem";
 import swap from "./swap";
 import { getPositionForIndex, getTargetIndex } from "./helpers";
+import { GridItemContext } from "./GridItemContext";
 
-type GridDropZoneProps<T> = {
-  items: T[];
+export type GridDropZoneProps = {
   boxesPerRow: number;
   rowHeight: number;
   id: string;
-  getKey: (item: T) => string | number;
-  children: ChildRender<T>;
+  children: React.ReactNodeArray;
   disableDrag?: boolean;
   disableDrop?: boolean;
   style?: React.CSSProperties;
@@ -24,17 +23,15 @@ interface PlaceholderType {
   targetIndex: number;
 }
 
-export function GridDropZone<T>({
-  items,
+export function GridDropZone({
   id,
   boxesPerRow,
   children,
-  getKey,
   disableDrag = false,
   disableDrop = false,
   rowHeight,
   ...other
-}: GridDropZoneProps<T>) {
+}: GridDropZoneProps) {
   const {
     traverse,
     startTraverse,
@@ -63,6 +60,8 @@ export function GridDropZone<T>({
     rowHeight
   };
 
+  const childCount = React.Children.count(children);
+
   /**
    * Register our dropzone with our grid context
    */
@@ -75,11 +74,11 @@ export function GridDropZone<T>({
       right: bounds.right,
       width: bounds.width,
       height: bounds.height,
-      count: items.length,
+      count: childCount,
       grid,
       disableDrop
     });
-  }, [items, disableDrop, bounds, id, grid]);
+  }, [childCount, disableDrop, bounds, id, grid]);
 
   /**
    * Unregister when unmounting
@@ -91,13 +90,13 @@ export function GridDropZone<T>({
 
   // keep an initial list of our item indexes. We use this
   // when animating swap positions on drag events
-  const itemsIndexes = items.map((_, i) => i);
+  const itemsIndexes = React.Children.map(children, (_, i) => i);
 
   return (
     <div ref={ref} {...other}>
       {grid.columnWidth === 0
         ? null
-        : items.map((item: any, i) => {
+        : React.Children.map(children, (child, i) => {
             const isTraverseTarget =
               traverse &&
               traverse.targetId === id &&
@@ -143,11 +142,11 @@ export function GridDropZone<T>({
 
               const targetIndex =
                 targetDropId !== id
-                  ? items.length
+                  ? childCount
                   : getTargetIndex(
                       i,
                       grid,
-                      items.length,
+                      childCount,
                       state.delta[0],
                       state.delta[1]
                     );
@@ -180,11 +179,11 @@ export function GridDropZone<T>({
 
               const targetIndex =
                 targetDropId !== id
-                  ? items.length
+                  ? childCount
                   : getTargetIndex(
                       i,
                       grid,
-                      items.length,
+                      childCount,
                       state.delta[0],
                       state.delta[1]
                     );
@@ -206,24 +205,24 @@ export function GridDropZone<T>({
             }
 
             return (
-              <GridItem
-                key={getKey(item)}
-                item={item}
-                top={pos.xy[1]}
-                disableDrag={disableDrag}
-                endTraverse={endTraverse}
-                mountWithTraverseTarget={
-                  isTraverseTarget ? [traverse!.tx, traverse!.ty] : undefined
-                }
-                left={pos.xy[0]}
-                i={i}
-                onMove={onMove}
-                onEnd={onEnd}
-                grid={grid}
-                dragging={i === draggingIndex}
+              <GridItemContext.Provider
+                value={{
+                  top: pos.xy[1],
+                  disableDrag,
+                  endTraverse,
+                  mountWithTraverseTarget: isTraverseTarget
+                    ? [traverse!.tx, traverse!.ty]
+                    : undefined,
+                  left: pos.xy[0],
+                  i,
+                  onMove,
+                  onEnd,
+                  grid,
+                  dragging: i === draggingIndex
+                }}
               >
-                {children}
-              </GridItem>
+                {child}
+              </GridItemContext.Provider>
             );
           })}
     </div>
