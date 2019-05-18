@@ -1,4 +1,14 @@
+<div align="center">
+ <img 
+    max-width="300px"
+    alt="A demo showing views being swiped left and right."
+     src="https://raw.githubusercontent.com/bmcmahen/react-dnd-grid/master/demo.gif">
+</div>
+
 # react-grid-dnd
+
+[![npm package](https://img.shields.io/npm/v/react-dnd-grid/latest.svg)](https://www.npmjs.com/package/react-dnd-grid)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/benmcmahen.svg?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=benmcmahen)
 
 Grid style drag and drop, built with React. See a live example on [codesandbox](https://codesandbox.io/embed/gracious-wozniak-kj9w8).
 
