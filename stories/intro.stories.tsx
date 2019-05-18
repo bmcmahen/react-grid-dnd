@@ -1,24 +1,14 @@
 import * as React from "react";
 import { storiesOf } from "@storybook/react";
-import { GridContext, GridDropZone, GridContextProvider } from "../src";
-import swap from "../src/swap";
+import {
+  GridContext,
+  GridDropZone,
+  GridContextProvider,
+  swap,
+  move
+} from "../src";
+
 import { GridItem } from "../src/GridItem";
-
-const move = (
-  source: Array<any>,
-  destination: Array<any>,
-  droppableSource: number,
-  droppableDestination: number
-) => {
-  const sourceClone = Array.from(source);
-  const destClone = Array.from(destination);
-
-  const [removed] = sourceClone.splice(droppableSource, 1);
-
-  destClone.splice(droppableDestination, 0, removed);
-
-  return [sourceClone, destClone];
-};
 
 function DragBetweenExample({ single }: any) {
   const [left, setLeft] = React.useState([
