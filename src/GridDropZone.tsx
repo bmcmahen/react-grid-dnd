@@ -3,8 +3,7 @@ import { StateType } from "react-gesture-responder";
 import { useMeasure } from "./use-measure";
 import { GridContext } from "./GridContext";
 import { GridSettings, ChildRender } from "./grid-types";
-import { GridItem } from "./GridItem";
-import swap from "./swap";
+import { swap } from "./swap";
 import { getPositionForIndex, getTargetIndex } from "./helpers";
 import { GridItemContext } from "./GridItemContext";
 
