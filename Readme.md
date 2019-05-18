@@ -29,6 +29,8 @@ yarn add react-grid-dnd react-gesture-responder
 
 ## Usage
 
+Because `GridItem` components are rendered with absolute positioning, you need to ensure that `GridDropZone` has a specified height or flex, like in the example below.
+
 ```jsx
 import {
   GridContextProvider,
