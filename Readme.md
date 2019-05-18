@@ -1,4 +1,14 @@
+<div align="center">
+ <img 
+    max-width="300px"
+    alt="A demo showing views being swiped left and right."
+     src="https://raw.githubusercontent.com/bmcmahen/react-dnd-grid/master/demo.gif">
+</div>
+
 # react-grid-dnd
+
+[![npm package](https://img.shields.io/npm/v/react-dnd-grid/latest.svg)](https://www.npmjs.com/package/react-dnd-grid)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/benmcmahen.svg?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=benmcmahen)
 
 Grid style drag and drop, built with React. See a live example on [codesandbox](https://codesandbox.io/embed/gracious-wozniak-kj9w8).
 
@@ -20,7 +30,12 @@ yarn add react-grid-dnd react-gesture-responder
 ## Usage
 
 ```jsx
-import { GridContextProvider, GridDropZone, swap } from "react-grid-dnd";
+import {
+  GridContextProvider,
+  GridDropZone,
+  GridItem,
+  swap
+} from "react-grid-dnd";
 
 function Example() {
   const [items, setItems] = React.useState([]); // supply your own state
@@ -37,20 +52,20 @@ function Example() {
         id="items"
         boxesPerRow={4}
         rowHeight={100}
-        items={items}
-        getKey={item => item.id}
         style={{ height: "400px" }}
       >
-        {item => (
-          <div
-            style={{
-              width: "100%",
-              height: "100%"
-            }}
-          >
-            Render your item here
-          </div>
-        )}
+        {items.map(item => (
+          <GridItem key={item.id}>
+            <div
+              style={{
+                width: "100%",
+                height: "100%"
+              }}
+            >
+              Render your item here
+            </div>
+          </GridItem>
+        ))}
       </GridDropZone>
     </GridContextProvider>
   );
@@ -62,7 +77,13 @@ function Example() {
 You can see this example in action on [codesandbox](https://codesandbox.io/embed/gracious-wozniak-kj9w8).
 
 ```jsx
-import { GridContextProvider, GridDropZone, swap, move } from "react-grid-dnd";
+import {
+  GridContextProvider,
+  GridDropZone,
+  GridItem,
+  swap,
+  move
+} from "react-grid-dnd";
 
 function App() {
   const [items, setItems] = React.useState({
@@ -113,33 +134,33 @@ function App() {
           className="dropzone left"
           id="left"
           boxesPerRow={4}
-          getKey={item => item.id}
           rowHeight={70}
-          items={items.left}
         >
-          {item => (
-            <div className="grid-item">
-              <div className="grid-item-content">
-                {item.name[0].toUpperCase()}
+          {items.left.map(item => (
+            <GridItem key={item.name}>
+              <div className="grid-item">
+                <div className="grid-item-content">
+                  {item.name[0].toUpperCase()}
+                </div>
               </div>
-            </div>
-          )}
+            </GridItem>
+          ))}
         </GridDropZone>
         <GridDropZone
           className="dropzone right"
           id="right"
           boxesPerRow={4}
-          getKey={item => item.id}
           rowHeight={70}
-          items={items.right}
         >
-          {item => (
-            <div className="grid-item">
-              <div className="grid-item-content">
-                {item.name[0].toUpperCase()}
+          {items.right.map(item => (
+            <GridItem key={item.name}>
+              <div className="grid-item">
+                <div className="grid-item-content">
+                  {item.name[0].toUpperCase()}
+                </div>
               </div>
-            </div>
-          )}
+            </GridItem>
+          ))}
         </GridDropZone>
       </div>
     </GridContextProvider>
