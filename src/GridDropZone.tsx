@@ -7,7 +7,8 @@ import { swap } from "./swap";
 import { getPositionForIndex, getTargetIndex } from "./helpers";
 import { GridItemContext } from "./GridItemContext";
 
-export type GridDropZoneProps = {
+export interface GridDropZoneProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   boxesPerRow: number;
   rowHeight: number;
   id: string;
@@ -15,7 +16,7 @@ export type GridDropZoneProps = {
   disableDrag?: boolean;
   disableDrop?: boolean;
   style?: React.CSSProperties;
-};
+}
 
 interface PlaceholderType {
   startIndex: number;
