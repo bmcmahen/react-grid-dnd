@@ -141,7 +141,7 @@ export function GridItem({ children }: GridItemProps) {
       (!!disableDrag ? " disabled" : ""),
     ...bind,
     style: {
-      cursor: "grab",
+      cursor: !!disableDrag ? "grab" : undefined,
       zIndex: styles.zIndex,
       position: "absolute",
       width: columnWidth + "px",
