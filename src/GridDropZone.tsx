@@ -27,6 +27,7 @@ export function GridDropZone({
   id,
   boxesPerRow,
   children,
+  style,
   disableDrag = false,
   disableDrop = false,
   rowHeight,
@@ -37,13 +38,14 @@ export function GridDropZone({
     startTraverse,
     endTraverse,
     register,
+    measureAll,
     onChange,
     remove,
     getActiveDropId
   } = React.useContext(GridContext);
 
   const ref = React.useRef<HTMLDivElement>(null);
-  const { bounds } = useMeasure(ref);
+  const { bounds, remeasure } = useMeasure(ref);
   const [draggingIndex, setDraggingIndex] = React.useState<number | null>(null);
   const [placeholder, setPlaceholder] = React.useState<PlaceholderType | null>(
     null
@@ -76,7 +78,8 @@ export function GridDropZone({
       height: bounds.height,
       count: childCount,
       grid,
-      disableDrop
+      disableDrop,
+      remeasure
     });
   }, [childCount, disableDrop, bounds, id, grid]);
 
@@ -93,7 +96,14 @@ export function GridDropZone({
   const itemsIndexes = React.Children.map(children, (_, i) => i);
 
   return (
-    <div ref={ref} {...other}>
+    <div
+      ref={ref}
+      style={{
+        position: "relative",
+        ...style
+      }}
+      {...other}
+    >
       {grid.columnWidth === 0
         ? null
         : React.Children.map(children, (child, i) => {
@@ -204,6 +214,10 @@ export function GridDropZone({
               setDraggingIndex(null);
             }
 
+            function onStart() {
+              measureAll();
+            }
+
             return (
               <GridItemContext.Provider
                 value={{
@@ -217,6 +231,7 @@ export function GridDropZone({
                   i,
                   onMove,
                   onEnd,
+                  onStart,
                   grid,
                   dragging: i === draggingIndex
                 }}

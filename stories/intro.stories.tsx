@@ -10,60 +10,65 @@ import {
 
 import { GridItem } from "../src/GridItem";
 
+interface AppState {
+  [key: string]: Array<{
+    name: string;
+    id: number;
+  }>;
+}
+
 function DragBetweenExample({ single }: any) {
-  const [left, setLeft] = React.useState([
-    { id: 1, name: "ben" },
-    { id: 2, name: "joe" },
-    { id: 3, name: "jason" },
-    { id: 4, name: "chris" },
-    { id: 5, name: "heather" },
-    { id: 6, name: "Richard" }
-  ]);
-  const [right, setRight] = React.useState([
-    { id: 7, name: "george" },
-    { id: 8, name: "rupert" },
-    { id: 9, name: "alice" },
-    { id: 10, name: "katherine" },
-    { id: 11, name: "pam" },
-    { id: 12, name: "katie" }
-  ]);
+  const [mounted, setMounted] = React.useState(false);
+  const [items, setItems] = React.useState<AppState>({
+    left: [
+      { id: 1, name: "ben" },
+      { id: 2, name: "joe" },
+      { id: 3, name: "jason" },
+      { id: 4, name: "chris" },
+      { id: 5, name: "heather" },
+      { id: 6, name: "Richard" }
+    ],
+    right: [
+      { id: 7, name: "george" },
+      { id: 8, name: "rupert" },
+      { id: 9, name: "alice" },
+      { id: 10, name: "katherine" },
+      { id: 11, name: "pam" },
+      { id: 12, name: "katie" }
+    ],
+    dock: [{ id: 13, name: "Whatever" }]
+  });
 
-  function addItem() {
-    setLeft([
-      {
-        id: Math.random(),
-        name: "roger"
-      },
-      ...left
-    ]);
-  }
-
+  React.useEffect(() => {
+    setTimeout(() => {
+      setMounted(true);
+    }, 500);
+  }, []);
   function onChange(
-    sourceId: string,
+    sourceId: any,
     sourceIndex: number,
     targetIndex: number,
     targetId?: string
   ) {
-    if (!targetId) {
-      if (sourceId === "right") {
-        const arr = swap(right, sourceIndex, targetIndex);
-        setRight(arr);
-      } else {
-        setLeft(swap(left, sourceIndex, targetIndex));
-      }
-      return;
+    if (targetId) {
+      const result = move(
+        items[sourceId],
+        items[targetId],
+        sourceIndex,
+        targetIndex
+      );
+      return setItems({
+        ...items,
+        [sourceId]: result[0],
+        [targetId]: result[1]
+      });
     }
 
-    if (sourceId === "left") {
-      const [p, d] = move(left, right, sourceIndex, targetIndex);
-
-      setRight(d);
-      setLeft(p);
-    } else {
-      const [d, p] = move(right, left, sourceIndex, targetIndex);
-      setRight(d);
-      setLeft(p);
-    }
+    const result = swap(items[sourceId], sourceIndex, targetIndex);
+    return setItems({
+      ...items,
+      [sourceId]: result
+    });
   }
 
   return (
@@ -74,103 +79,158 @@ function DragBetweenExample({ single }: any) {
           touchAction: "none"
         }}
       >
-        <GridDropZone
+        <div
           style={{
-            flex: 1,
-            height: "400px",
-            border: "1px solid #bbb",
-            borderRadius: "1rem",
-            marginRight: "10px",
-            touchAction: "none"
+            transform: mounted ? `translateX(-100px)` : `translateX(0)`,
+            transition: "transform 0.25s ease",
+            width: "600px",
+            display: "flex",
+            border: "1px solid blue"
           }}
-          id="left"
-          boxesPerRow={4}
-          rowHeight={70}
         >
-          {left.map(item => (
-            <GridItem key={item.name}>
-              <div
-                style={{
-                  padding: "10px",
-                  width: "100%",
-                  height: "100%",
-                  boxSizing: "border-box"
-                }}
-              >
-                <div
-                  style={{
-                    width: "50px",
-                    height: "50px",
-                    boxSizing: "border-box",
-                    background: "#08e",
-                    display: "flex",
-                    justifyContent: "center",
-                    color: "white",
-                    fontFamily: "helvetica",
-                    alignItems: "center",
-                    borderRadius: "50%"
-                  }}
-                >
-                  {item.name[0].toUpperCase()}
-                </div>
-              </div>
-            </GridItem>
-          ))}
-        </GridDropZone>
-
-        {!single && (
           <GridDropZone
             style={{
-              flex: 1,
+              flex: "0 0 auto",
               height: "400px",
+              width: "400px",
               border: "1px solid #bbb",
               borderRadius: "1rem",
-              marginLeft: "10px",
+              marginRight: "10px",
               touchAction: "none"
             }}
-            id="right"
+            id="left"
             boxesPerRow={4}
             rowHeight={70}
           >
-            {right.map(item => (
+            {items.left.map(item => (
               <GridItem key={item.name}>
-                {(Component: any, props: any) => (
-                  <Component {...props}>
-                    <div
-                      style={{
-                        padding: "10px",
-                        width: "100%",
-                        height: "100%",
-                        boxSizing: "border-box"
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: "50px",
-                          height: "50px",
-                          boxSizing: "border-box",
-                          background: "#08e",
-                          display: "flex",
-                          justifyContent: "center",
-                          color: "white",
-                          fontFamily: "helvetica",
-                          alignItems: "center",
-                          borderRadius: "50%"
-                        }}
-                      >
-                        {item.name[0].toUpperCase()}
-                      </div>
-                    </div>
-                  </Component>
-                )}
+                <div
+                  style={{
+                    padding: "10px",
+                    width: "100%",
+                    height: "100%",
+                    boxSizing: "border-box"
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "50px",
+                      height: "50px",
+                      boxSizing: "border-box",
+                      background: "#08e",
+                      display: "flex",
+                      justifyContent: "center",
+                      color: "white",
+                      fontFamily: "helvetica",
+                      alignItems: "center",
+                      borderRadius: "50%"
+                    }}
+                  >
+                    {item.name[0].toUpperCase()}
+                  </div>
+                </div>
               </GridItem>
             ))}
           </GridDropZone>
-        )}
+
+          {!single && (
+            <GridDropZone
+              style={{
+                flex: "0 0 auto",
+                height: "400px",
+
+                width: "400px",
+                border: "1px solid #bbb",
+                borderRadius: "1rem",
+                marginLeft: "10px",
+                touchAction: "none"
+              }}
+              id="right"
+              boxesPerRow={4}
+              rowHeight={70}
+            >
+              {items.right.map(item => (
+                <GridItem key={item.name}>
+                  {(Component: any, props: any) => (
+                    <Component {...props}>
+                      <div
+                        style={{
+                          padding: "10px",
+                          width: "100%",
+                          height: "100%",
+                          boxSizing: "border-box"
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            boxSizing: "border-box",
+                            background: "#08e",
+                            display: "flex",
+                            justifyContent: "center",
+                            color: "white",
+                            fontFamily: "helvetica",
+                            alignItems: "center",
+                            borderRadius: "50%"
+                          }}
+                        >
+                          {item.name[0].toUpperCase()}
+                        </div>
+                      </div>
+                    </Component>
+                  )}
+                </GridItem>
+              ))}
+            </GridDropZone>
+          )}
+        </div>
       </div>
-      <div>
-        <button onClick={addItem}>add item</button>
-      </div>
+
+      <GridDropZone
+        style={{
+          flex: "0 0 auto",
+          height: "200px",
+          width: "400px",
+          border: "1px solid red",
+          borderRadius: "1rem",
+          marginRight: "10px",
+          touchAction: "none"
+        }}
+        id="dock"
+        boxesPerRow={4}
+        rowHeight={70}
+      >
+        {items.dock.map(item => (
+          <GridItem key={item.name}>
+            <div
+              style={{
+                padding: "10px",
+                width: "100%",
+                height: "100%",
+                boxSizing: "border-box"
+              }}
+            >
+              <div
+                style={{
+                  width: "50px",
+                  height: "50px",
+                  boxSizing: "border-box",
+                  background: "#08e",
+                  display: "flex",
+                  justifyContent: "center",
+                  color: "white",
+                  fontFamily: "helvetica",
+                  alignItems: "center",
+                  borderRadius: "50%"
+                }}
+              >
+                {item.name[0].toUpperCase()}
+              </div>
+            </div>
+          </GridItem>
+        ))}
+      </GridDropZone>
     </GridContextProvider>
   );
 }
@@ -179,4 +239,30 @@ storiesOf("Hello", module)
   .add("Drag between", () => <DragBetweenExample />)
   .add("single", () => {
     return <DragBetweenExample single />;
-  });
+  })
+  .add("supports parents transforming", () => (
+    <div>
+      <TransformExample />
+    </div>
+  ));
+
+function TransformExample() {
+  const [transform, setTransform] = React.useState(false);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      setTransform(true);
+    }, 2000);
+  }, []);
+
+  return (
+    <div
+      style={{
+        transform: transform ? "translateX(-30%)" : "translateX(0)",
+        transition: "transform 0.25s ease"
+      }}
+    >
+      <DragBetweenExample />
+    </div>
+  );
+}

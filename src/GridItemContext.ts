@@ -11,6 +11,7 @@ export interface GridItemContextType {
   i: number;
   onMove: (state: StateType, x: number, y: number) => void;
   onEnd: (state: StateType, x: number, y: number) => void;
+  onStart: () => void;
   grid: GridSettings;
   dragging: boolean;
 }

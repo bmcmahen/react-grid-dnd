@@ -34,5 +34,9 @@ export function useMeasure(ref: React.RefObject<HTMLDivElement | null>) {
     return () => observer.disconnect();
   }, [ref, observer]);
 
-  return { bounds };
+  function remeasure() {
+    setBounds(ref.current!.getBoundingClientRect());
+  }
+
+  return { bounds, remeasure };
 }

@@ -7,14 +7,6 @@ import {
 import { SpringValue, animated, interpolate, useSpring } from "react-spring";
 import { GridItemContext } from "./GridItemContext";
 
-interface StyleProps {
-  [x: string]: SpringValue<any>;
-  xy: SpringValue<number[]>;
-  zIndex: SpringValue<string>;
-  scale: SpringValue<number>;
-  opacity: SpringValue<number>;
-}
-
 type GridItemProps = {
   children: React.ReactNode;
 };
@@ -32,6 +24,7 @@ export function GridItem({ children }: GridItemProps) {
     top,
     disableDrag,
     endTraverse,
+    onStart,
     mountWithTraverseTarget,
     left,
     i,
@@ -49,15 +42,18 @@ export function GridItem({ children }: GridItemProps) {
     if (mountWithTraverseTarget) {
       // this feels really brittle. unsure of a better
       // solution for now.
+
+      const mountXY = mountWithTraverseTarget;
+
+      endTraverse();
+
       return {
-        xy: mountWithTraverseTarget,
+        xy: mountXY,
         immediate: true,
         zIndex: "1",
         scale: 1.1,
         opacity: 0.8
       };
-
-      endTraverse();
     }
 
     return {
@@ -98,6 +94,8 @@ export function GridItem({ children }: GridItemProps) {
         if (disableDrag) {
           return false;
         }
+
+        onStart();
 
         startCoords.current = [left, top];
         dragging.current = true;
