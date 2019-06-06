@@ -4,14 +4,19 @@ import {
   useGestureResponder,
   ResponderEvent
 } from "react-gesture-responder";
-import { SpringValue, animated, interpolate, useSpring } from "react-spring";
+import { animated, interpolate, useSpring } from "react-spring";
 import { GridItemContext } from "./GridItemContext";
 
-type GridItemProps = {
+interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-};
+}
 
-export function GridItem({ children }: GridItemProps) {
+export function GridItem({
+  children,
+  style,
+  className,
+  ...other
+}: GridItemProps) {
   const context = React.useContext(GridItemContext);
 
   if (!context) {
@@ -138,7 +143,10 @@ export function GridItem({ children }: GridItemProps) {
     className:
       "GridItem" +
       (isDragging ? " dragging" : "") +
-      (!!disableDrag ? " disabled" : ""),
+      (!!disableDrag ? " disabled" : "") +
+      className
+        ? ` ${className}`
+        : "",
     ...bind,
     style: {
       cursor: !!disableDrag ? "grab" : undefined,
@@ -152,8 +160,10 @@ export function GridItem({ children }: GridItemProps) {
         [styles.xy, styles.scale],
         (xy: any, s: any) =>
           `translate3d(${xy[0]}px, ${xy[1]}px, 0) scale(${s})`
-      )
-    }
+      ),
+      ...style
+    },
+    ...other
   };
 
   return typeof children === "function" ? (
