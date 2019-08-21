@@ -10,7 +10,7 @@
 [![npm package](https://img.shields.io/npm/v/react-dnd-grid/latest.svg)](https://www.npmjs.com/package/react-dnd-grid)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/benmcmahen.svg?style=social&logo=twitter)](https://twitter.com/intent/follow?screen_name=benmcmahen)
 
-Grid style drag and drop, built with React. See a live example on [codesandbox](https://codesandbox.io/embed/gracious-wozniak-kj9w8).
+Grid style drag and drop, built with React. See a live example on [codesandbox](https://codesandbox.io/embed/gracious-wozniak-kj9w8). You can also see it in action [here](https://react-gesture-responder.netlify.com/).
 
 ## Features
 
