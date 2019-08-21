@@ -40,7 +40,7 @@ import {
 } from "react-grid-dnd";
 
 function Example() {
-  const [items, setItems] = React.useState([]); // supply your own state
+  const [items, setItems] = React.useState([1, 2, 3, 4]); // supply your own state
 
   // target id will only be set if dragging from one dropzone to another.
   function onChange(sourceId, sourceIndex, targetIndex, targetId) {
@@ -57,14 +57,14 @@ function Example() {
         style={{ height: "400px" }}
       >
         {items.map(item => (
-          <GridItem key={item.id}>
+          <GridItem key={item}>
             <div
               style={{
                 width: "100%",
                 height: "100%"
               }}
             >
-              Render your item here
+              {item}
             </div>
           </GridItem>
         ))}
