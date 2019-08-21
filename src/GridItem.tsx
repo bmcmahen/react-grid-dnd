@@ -162,7 +162,7 @@ export function GridItem({
           `translate3d(${xy[0]}px, ${xy[1]}px, 0) scale(${s})`
       ),
       ...style
-    },
+    } as any,
     ...other
   };
 
