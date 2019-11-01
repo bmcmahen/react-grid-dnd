@@ -96,7 +96,17 @@ export function GridContextProvider({
    */
 
   function getFixedPosition(sourceId: string, rx: number, ry: number) {
-    const { left, top } = dropRefs.current.get(sourceId)!;
+    const item = dropRefs.current.get(sourceId)!;
+
+    // When items are removed from the DOM, the left and top values could be undefined.
+    if (!item) {
+      return {
+        x: rx,
+        y: ry
+      };
+    }
+
+    const { left, top } = item;
 
     return {
       x: left + rx,
