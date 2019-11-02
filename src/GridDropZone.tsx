@@ -134,6 +134,8 @@ export function GridDropZone({
              */
 
             function onMove(state: StateType, x: number, y: number) {
+              if (!ref.current) return;
+
               if (draggingIndex !== i) {
                 setDraggingIndex(i);
               }
