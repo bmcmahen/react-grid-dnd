@@ -73,7 +73,7 @@
   "dependencies": {
     "@types/react": "^16.8.10",
     "@types/react-dom": "^16.8.3",
-    "react-spring": "^9.0.0-beta.8",
+    "react-spring": "9.0.0-beta.8",
     "resize-observer-polyfill": "^1.5.1",
     "tslib": "^1.9.3"
   },
