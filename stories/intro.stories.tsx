@@ -245,7 +245,8 @@ storiesOf("Hello", module)
       <TransformExample />
     </div>
   ))
-  .add("readme example", () => <ReadmeExample />);
+  .add("readme example", () => <ReadmeExample />)
+  .add("disable single item", () => <DisabledExample />);
 
 function TransformExample() {
   const [transform, setTransform] = React.useState(false);
@@ -299,6 +300,47 @@ function ReadmeExample() {
               }}
             >
               {item}
+            </div>
+          </GridItem>
+        ))}
+      </GridDropZone>
+    </GridContextProvider>
+  );
+}
+
+function DisabledExample() {
+  const [items, setItems] = React.useState([1, 2, 3, 4]); // supply your own state
+
+  // target id will only be set if dragging from one dropzone to another.
+  function onChange(
+    sourceId: any,
+    sourceIndex: any,
+    targetIndex: any,
+    targetId: any
+  ) {
+    const nextState = swap(items, sourceIndex, targetIndex);
+    setItems(nextState);
+  }
+
+  return (
+    <GridContextProvider onChange={onChange}>
+      <GridDropZone
+        id="items"
+        boxesPerRow={4}
+        rowHeight={100}
+        style={{ height: "400px" }}
+      >
+        {items.map((item: any) => (
+          //only disable 2
+          <GridItem key={item} disabled={item === 2}>
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+              }}
+            >
+              {item}
+              {item === 2 ? "(Disabled)" : ""}
             </div>
           </GridItem>
         ))}
