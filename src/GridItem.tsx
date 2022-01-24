@@ -9,12 +9,14 @@ import { GridItemContext } from "./GridItemContext";
 
 interface GridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
+  disabled?: boolean;
 }
 
 export function GridItem({
   children,
   style,
   className,
+  disabled=false,
   ...other
 }: GridItemProps) {
   const context = React.useContext(GridItemContext);
@@ -96,7 +98,7 @@ export function GridItem({
   const { bind } = useGestureResponder(
     {
       onMoveShouldSet: state => {
-        if (disableDrag) {
+        if (disabled || disableDrag) {
           return false;
         }
 
