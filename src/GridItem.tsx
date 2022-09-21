@@ -144,12 +144,10 @@ export function GridItem({
       "GridItem" +
       (isDragging ? " dragging" : "") +
       (!!disableDrag ? " disabled" : "") +
-      className
-        ? ` ${className}`
-        : "",
+      (className ? ` ${className}` : ""),
     ...bind,
     style: {
-      cursor: !!disableDrag ? "grab" : undefined,
+      cursor: !disableDrag ? "grab" : undefined,
       zIndex: styles.zIndex,
       position: "absolute",
       width: columnWidth + "px",
